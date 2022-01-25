@@ -1,0 +1,27 @@
+numPage = 12;
+
+const url = `https://www.sechat.com.br/lista-de-medicos/page/${numPage}/`
+await page.goto(url, {
+  waitUntil: 'networkidle2',
+});
+
+const pageData = await page.evaluate(() => {
+  const data = document.getElementById("all-contacts").getElementsByTagName('li')
+  let doctorsInfo = [];
+
+  for (let index = 0; index < data.length; index++) {
+    doctorsInfo.push({
+      doctorName: data[index].getElementsByTagName('h3')[0].innerText,
+      speciality: data[index].getElementsByClassName('contact-list-custom-field-2')[0].
+        innerText.replace('Especialidade\n', ''),
+      crm: data[index].getElementsByClassName('contact-list-custom-field-1')[0].innerText.replace('CRM\n', ''),
+      phone: data[index].getElementsByClassName('contact-list-phone')[0]
+        .innerText.replace('(', '').replace(')', '').replace('-', '').replace(' ', ''),
+      email: data[index].getElementsByClassName('contact-list-email')[0].innerText
+    })
+  }
+
+  return doctorsInfo;
+});
+
+await browser.close();
